@@ -1,0 +1,1921 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#090d16">
+<meta name="description" content="PRIDO Math Lab Pro — scientific calculator, graphing, matrices, statistics, equations and unit conversion.">
+<title>PRIDO Math Lab Pro | Advanced Scientific Suite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+/* ================================================================
+   PRIDO MATH LAB PRO
+   Single-file educational math suite
+   Developed by Pritam Kumar Mandal
+   ================================================================ */
+:root {
+  color-scheme: dark;
+  --bg:#090d16; --panel:#131b2e; --panel2:#0e1627; --border:#263249;
+  --text:#f8fafc; --muted:#94a3b8; --accent:#818cf8; --accent2:#6366f1;
+  --green:#34d399; --red:#fb7185; --yellow:#fbbf24; --shadow:0 18px 60px #0005;
+}
+html.light {
+  color-scheme: light;
+  --bg:#f1f5f9; --panel:#ffffff; --panel2:#f8fafc; --border:#dbe3ef;
+  --text:#0f172a; --muted:#64748b; --accent:#4f46e5; --accent2:#4338ca;
+  --green:#059669; --red:#e11d48; --yellow:#b45309; --shadow:0 18px 60px #33415518;
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  margin:0; min-height:100vh; background:
+    radial-gradient(ellipse at 15% 0%, #4338ca20, transparent 38%),
+    radial-gradient(ellipse at 90% 25%, #10b9810c, transparent 32%), var(--bg);
+  color:var(--text); font-family:Inter,system-ui,sans-serif; transition:background .2s,color .2s;
+}
+button,input,select,textarea { font:inherit; }
+button { cursor:pointer; }
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible {
+  outline:2px solid var(--accent); outline-offset:2px;
+}
+button:disabled { opacity:.45; cursor:not-allowed; }
+code,.mono { font-family:"Fira Code",monospace; }
+.shell { width:min(1500px,100%); margin:auto; padding:16px; }
+.topbar,.panel,.footer,.nav-wrap { background:color-mix(in srgb,var(--panel) 90%,transparent); border:1px solid var(--border); box-shadow:var(--shadow); backdrop-filter:blur(16px); }
+.topbar { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; padding:14px 18px; border-radius:22px; }
+.brand { display:flex; align-items:center; gap:12px; min-width:250px; }
+.brand-icon { display:grid; place-items:center; width:48px; height:48px; border-radius:16px; background:linear-gradient(135deg,#4f46e5,#a855f7,#ec4899); box-shadow:0 8px 30px #6366f155; font-size:22px; }
+.brand h1 { font-size:24px; letter-spacing:2px; margin:0; font-weight:900; background:linear-gradient(90deg,#818cf8,#e879f9); color:transparent; background-clip:text; }
+.brand p { margin:4px 0 0; color:var(--muted); font-size:11px; }
+.pill { display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:8px; background:#6366f122; border:1px solid #818cf844; color:var(--accent); font-size:10px; font-weight:800; }
+.top-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.icon-btn,.btn,.nav-btn,.key,.tool-btn,.chip {
+  border:1px solid var(--border); color:var(--text); background:var(--panel2); border-radius:11px; transition:transform .12s,background .15s,border-color .15s;
+}
+.icon-btn { width:40px; height:40px; display:grid; place-items:center; }
+.icon-btn:hover,.btn:hover,.nav-btn:hover,.key:hover,.tool-btn:hover,.chip:hover { border-color:var(--accent); transform:translateY(-1px); }
+.btn { padding:10px 13px; font-size:12px; font-weight:700; }
+.btn.primary { background:linear-gradient(135deg,#4f46e5,#7c3aed); border-color:#6366f1; color:white; }
+.btn.success { color:var(--green); border-color:color-mix(in srgb,var(--green) 40%,var(--border)); }
+.btn.danger { color:var(--red); border-color:color-mix(in srgb,var(--red) 40%,var(--border)); }
+.nav-wrap { margin-top:14px; padding:7px; border-radius:16px; display:flex; gap:6px; flex-wrap:wrap; }
+.nav-btn { padding:10px 13px; border-color:transparent; background:transparent; color:var(--muted); font-size:12px; font-weight:700; }
+.nav-btn.active { background:var(--accent2); color:white; box-shadow:0 5px 18px #6366f144; }
+.layout { display:grid; grid-template-columns:minmax(0,1.85fr) minmax(280px,.85fr); gap:14px; margin-top:14px; align-items:start; }
+.stack { display:flex; flex-direction:column; gap:14px; min-width:0; }
+.panel { border-radius:22px; padding:18px; min-width:0; }
+.panel-head { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:15px; }
+.panel-head h2,.panel-head h3 { margin:0; font-size:15px; display:flex; align-items:center; gap:9px; }
+.panel-head h2 i,.panel-head h3 i { color:var(--accent); }
+.subtle { color:var(--muted); font-size:12px; }
+.hidden { display:none!important; }
+.field { display:flex; flex-direction:column; gap:6px; min-width:0; }
+.field label { color:var(--muted); font-size:11px; font-weight:700; }
+.control { width:100%; background:var(--bg); color:var(--text); border:1px solid var(--border); border-radius:11px; padding:11px 12px; min-width:0; }
+.control:focus { border-color:var(--accent); outline:none; }
+.row { display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
+.grid2 { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.grid3 { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+.grid4 { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+.display { position:relative; overflow:hidden; background:var(--bg); border:1px solid var(--border); border-radius:18px; padding:18px; margin-bottom:14px; min-height:132px; display:flex; flex-direction:column; justify-content:flex-end; }
+.display-top { display:flex; justify-content:space-between; align-items:center; position:absolute; top:12px; left:12px; right:12px; }
+.display-preview { min-height:25px; text-align:right; color:var(--muted); font-size:13px; overflow-x:auto; white-space:nowrap; margin-top:26px; }
+.display-result { text-align:right; font-size:clamp(32px,5vw,58px); line-height:1.2; font-weight:800; letter-spacing:-2px; overflow-x:auto; white-space:nowrap; }
+.keypad { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; }
+.key { padding:14px 4px; min-height:48px; font-size:14px; font-weight:700; }
+.key.fn { color:var(--accent); background:color-mix(in srgb,var(--accent2) 9%,var(--panel2)); }
+.key.op { color:var(--accent); background:color-mix(in srgb,var(--accent2) 16%,var(--panel2)); }
+.key.danger { color:var(--red); background:#fb718512; }
+.key.equal { color:white; background:linear-gradient(135deg,#4f46e5,#7c3aed); border-color:#6366f1; }
+.key.wide { grid-column:span 2; }
+.memory-row,.function-row { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:7px; margin-bottom:9px; }
+.tool-btn { padding:9px 4px; font-size:11px; font-weight:700; color:var(--muted); }
+.stat-card { background:var(--bg); border:1px solid var(--border); border-radius:15px; padding:13px; min-width:0; }
+.stat-card .label { display:block; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+.stat-card .value { display:block; font:700 20px "Fira Code",monospace; overflow-wrap:anywhere; }
+.history-list { display:flex; flex-direction:column; gap:8px; max-height:370px; overflow:auto; }
+.history-item { border:1px solid var(--border); background:var(--panel2); border-radius:12px; padding:10px; cursor:pointer; }
+.history-item:hover { border-color:var(--accent); }
+.history-expr { color:var(--muted); font-size:11px; overflow-wrap:anywhere; }
+.history-result { margin-top:5px; font:700 14px "Fira Code",monospace; }
+.notice { padding:11px 12px; border-radius:12px; background:#6366f112; border:1px solid #818cf833; color:var(--muted); font-size:12px; line-height:1.6; }
+.output { background:var(--bg); border:1px solid var(--border); border-radius:13px; padding:13px; min-height:52px; overflow:auto; font:12px "Fira Code",monospace; line-height:1.8; white-space:pre-wrap; overflow-wrap:anywhere; }
+canvas { display:block; width:100%; height:420px; touch-action:none; }
+.canvas-wrap { background:var(--bg); border:1px solid var(--border); border-radius:15px; overflow:hidden; position:relative; }
+.canvas-badge { position:absolute; bottom:10px; left:10px; background:color-mix(in srgb,var(--panel) 90%,transparent); border:1px solid var(--border); border-radius:9px; padding:7px 9px; font:11px "Fira Code",monospace; color:var(--muted); pointer-events:none; }
+.matrix-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; }
+.matrix-grid input { width:100%; text-align:center; }
+.result-table { width:100%; border-collapse:collapse; font-size:12px; }
+.result-table th,.result-table td { padding:9px; border-bottom:1px solid var(--border); text-align:left; }
+.result-table th { color:var(--muted); font-weight:700; }
+.footer { margin-top:14px; border-radius:16px; padding:13px 17px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; color:var(--muted); font-size:11px; }
+.toast-area { position:fixed; right:16px; bottom:16px; z-index:99; display:flex; flex-direction:column; gap:8px; }
+.toast { background:var(--panel); border:1px solid var(--border); box-shadow:var(--shadow); border-radius:12px; padding:12px 15px; min-width:220px; max-width:min(380px,90vw); font-size:12px; animation:toastIn .2s ease-out; }
+.toast.ok { border-color:#34d39988; } .toast.error { border-color:#fb718588; }
+@keyframes toastIn { from {opacity:0;transform:translateY(8px)} to {opacity:1;transform:translateY(0)} }
+kbd { background:var(--panel2); border:1px solid var(--border); border-radius:5px; padding:2px 5px; color:var(--text); font:10px "Fira Code",monospace; }
+hr { border:0; border-top:1px solid var(--border); margin:15px 0; }
+.small { font-size:10px; }
+.muted { color:var(--muted); }
+.text-green { color:var(--green); } .text-red { color:var(--red); } .text-accent { color:var(--accent); }
+.checkline { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); }
+.checkline input { accent-color:var(--accent2); }
+.section-title { margin:0 0 12px; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:var(--muted); }
+details { border:1px solid var(--border); border-radius:12px; padding:11px; }
+summary { cursor:pointer; font-size:12px; font-weight:700; }
+details p { color:var(--muted); font-size:12px; line-height:1.7; }
+@media(max-width:980px) { .layout { grid-template-columns:1fr; } .side-layout { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; } }
+@media(max-width:650px) {
+  .shell { padding:9px; } .topbar { padding:12px; } .brand h1 { font-size:21px; }
+  .panel { padding:13px; border-radius:17px; } .keypad { gap:5px; }
+  .key { min-height:44px; padding:10px 2px; font-size:12px; }
+  .memory-row,.function-row { gap:5px; } .tool-btn { font-size:10px; }
+  .grid4 { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .grid3 { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .side-layout { display:flex; flex-direction:column; } canvas { height:330px; }
+}
+@media(prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms!important; transition-duration:.01ms!important; scroll-behavior:auto!important; } }
+</style>
+
+<!--
+====================================================================
+PRIDO MATH LAB PRO — MAINTENANCE GUIDE
+====================================================================
+PROJECT OVERVIEW
+This project is intentionally delivered as one HTML file so a learner
+can run it locally, upload it to static hosting, or inspect its source
+without a build step. The UI uses standard HTML, CSS, and JavaScript.
+Font Awesome and Google Fonts are optional external visual resources.
+The math calculations themselves run locally in the browser.
+
+MODULE MAP
+1. Calculator
+   - Expression editor and large result display.
+   - Safe tokenization and parsing rather than JavaScript eval.
+   - DEG/RAD trigonometry, inverse trig, constants, powers, factorial.
+   - Answer memory and M+, M−, MC, MR controls.
+   - Calculation history with CSV download and copy action.
+   - Keyboard shortcuts.
+2. Graph Lab
+   - HTML Canvas plotting engine.
+   - Multiple overlay functions with independent colors.
+   - Drag-to-pan and wheel-to-zoom interaction.
+   - Grid and axes toggles.
+   - Canvas resizes with its responsive container.
+3. Matrix Lab
+   - Matrix dimensions 2×2 and 3×3.
+   - Determinant, trace, transpose, inverse, addition, subtraction,
+     and multiplication.
+   - Pivoting in the Gauss-Jordan inverse routine.
+   - Singular matrix handling.
+4. Statistics
+   - Input parsing for comma, semicolon, spaces and new lines.
+   - Count, mean, median, mode, min, max, range, variance,
+     standard deviation, quartiles and sum.
+   - Population variance convention is used.
+5. Equation Solver
+   - Linear equation ax+b=0.
+   - Quadratic equation ax²+bx+c=0, including complex roots.
+   - Two-equation/two-unknown linear system.
+6. Unit Converter
+   - Length, mass, temperature, digital storage, time, area,
+     speed, volume and pressure.
+   - Temperature is converted through Celsius as the intermediate.
+   - Other categories use factors to their base unit.
+7. Number Tools
+   - Binary, octal, decimal and hexadecimal conversions.
+   - Prime checks, factorization, GCD and LCM.
+   - Configurable random integer generation.
+8. Quick Tools
+   - Percentage helper.
+   - BMI estimate helper.
+   - Discount calculator.
+   - Quadratic formula helper.
+9. Preferences
+   - Dark and light themes.
+   - Optional sound effects.
+   - Reset calculator state.
+10. Help
+   - Built-in syntax and formula explanations.
+
+MATHEMATICAL CONVENTIONS
+- Trigonometric input and inverse-trigonometric output follow the angle
+  mode. The default mode is degrees.
+- log(x) means base-10 logarithm; ln(x) means natural logarithm.
+- The % operator in an expression means remainder/modulo, not the
+  consumer-calculator interpretation of percentage. To calculate a
+  percentage, use the percentage quick tool or divide by 100.
+- Factorials are limited to integer values from 0 through 170 because
+  JavaScript numbers overflow beyond this range.
+- Matrix inverse uses a small tolerance to identify singular matrices.
+- Statistics use population variance (divide by n). Quartiles use the
+  median-of-halves method.
+- The number-base converter is designed for JavaScript safe integers.
+- Floating-point values can show normal binary floating-point rounding.
+  For high-precision financial or scientific applications, use a
+  decimal/big-number library and add domain-specific validation.
+
+SECURITY AND RELIABILITY NOTES
+- The calculator parser does not call eval() or Function().
+- User expressions are split into tokens; only numeric tokens,
+  operators, constants, parentheses and an allow-list of math functions
+  are accepted.
+- DOM output is generally written with textContent rather than injecting
+  user-entered strings as HTML.
+- This is a front-end-only project. It does not include accounts,
+  remote storage, a server, or cloud synchronization.
+- If deploying publicly, consider a restrictive Content Security Policy,
+  pinned CDN assets, and local copies of third-party CSS/font assets.
+- No external service is required for arithmetic, matrix, statistics,
+  equation or conversion logic. Google Fonts and Font Awesome may need
+  network access to load their decorative assets.
+- The app is an educational aid, not a replacement for validated
+  scientific software in safety-critical contexts.
+
+SUGGESTED FUTURE ENHANCEMENTS
+- Arbitrary-precision decimal and complex-number arithmetic.
+- Symbolic algebra, derivative and integral approximations.
+- Numerical root finder (bisection/Newton method).
+- 3D surface plotting with WebGL.
+- Save/load settings through localStorage with an opt-in privacy notice.
+- Unit conversion favorites and custom units.
+- More matrix sizes with efficient LU decomposition.
+- Histogram and box-plot visualization for statistics.
+- Step-by-step explanation mode for students.
+- Accessible keyboard navigation and screen-reader announcements.
+- Automated browser tests for each module.
+- Localization for Hindi and other languages.
+- Progressive Web App manifest and offline cache.
+- Import/export of datasets as CSV.
+- A configurable decimal precision setting.
+- Plot discontinuity detection and function-domain warnings.
+- Matrix row-reduction and linear-system solving from matrices.
+- Complex arithmetic for negative-discriminant equations.
+- A formula notebook with named reusable variables.
+- Graph trace mode and numerical root/intersection estimates.
+- Scientific notation toggle for very large or very small numbers.
+- Clipboard paste support and expression history search.
+
+MAINTENANCE CHECKLIST
+[ ] Verify the default calculator examples after editing the parser.
+[ ] Test trigonometric functions in both DEG and RAD modes.
+[ ] Test inverse of identity and singular matrices.
+[ ] Test 2×2 and 3×3 matrix operations.
+[ ] Test empty, invalid and duplicate values in statistics input.
+[ ] Test temperature conversions among all three scales.
+[ ] Test negative and positive integers in the base converter.
+[ ] Test graph resize after switching tabs and resizing the window.
+[ ] Test keyboard shortcuts while focused in input controls.
+[ ] Test theme colors and contrast in dark and light modes.
+[ ] Test export files with commas, quotes and Unicode text.
+[ ] Verify small-screen layout on a phone-sized viewport.
+====================================================================
+END OF MAINTENANCE GUIDE
+====================================================================
+-->
+
+</head>
+<body>
+<div class="shell">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon"><i class="fa-solid fa-microchip"></i></div>
+      <div>
+        <div class="row" style="gap:8px"><h1>PRIDO</h1><span class="pill">MATH LAB PRO · v5.0</span></div>
+        <p>Advanced Scientific Suite · Developed by <strong>Pritam Kumar Mandal</strong></p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn" id="soundToggle" title="Toggle sound" aria-label="Toggle sound"><i class="fa-solid fa-volume-xmark"></i></button>
+      <button class="icon-btn" id="themeToggle" title="Toggle theme" aria-label="Toggle theme"><i class="fa-solid fa-sun"></i></button>
+      <button class="icon-btn" id="exportHistory" title="Export history" aria-label="Export history"><i class="fa-solid fa-file-arrow-down"></i></button>
+      <button class="icon-btn" id="resetApp" title="Reset current calculator" aria-label="Reset calculator"><i class="fa-solid fa-rotate"></i></button>
+    </div>
+  </header>
+
+  <nav class="nav-wrap" aria-label="Calculator modules">
+    <button class="nav-btn active" data-module="calc"><i class="fa-solid fa-calculator"></i> Calculator</button>
+    <button class="nav-btn" data-module="graph"><i class="fa-solid fa-chart-line"></i> Graph Lab</button>
+    <button class="nav-btn" data-module="matrix"><i class="fa-solid fa-table-cells"></i> Matrix Lab</button>
+    <button class="nav-btn" data-module="stats"><i class="fa-solid fa-chart-pie"></i> Statistics</button>
+    <button class="nav-btn" data-module="equations"><i class="fa-solid fa-equals"></i> Equation Solver</button>
+    <button class="nav-btn" data-module="units"><i class="fa-solid fa-scale-balanced"></i> Converter</button>
+    <button class="nav-btn" data-module="number"><i class="fa-solid fa-hashtag"></i> Number Tools</button>
+    <button class="nav-btn" data-module="help"><i class="fa-solid fa-circle-question"></i> Help</button>
+  </nav>
+
+  <main class="layout">
+    <section class="stack">
+      <!-- CALCULATOR MODULE -->
+      <section class="panel module" id="module-calc">
+        <div class="panel-head">
+          <h2><i class="fa-solid fa-calculator"></i> Scientific Calculator</h2>
+          <div class="row">
+            <span class="pill" id="angleBadge">DEG MODE</span>
+            <span class="pill" id="memoryBadge" hidden>M: <span id="memoryValue">0</span></span>
+          </div>
+        </div>
+        <div class="display" aria-live="polite">
+          <div class="display-top"><span class="subtle mono">PRIDO · SAFE MATH ENGINE</span><span class="subtle" id="displayStatus">Ready</span></div>
+          <div class="display-preview mono" id="expressionPreview">Ready for your calculation</div>
+          <div class="display-result mono" id="mainResult">0</div>
+        </div>
+        <div class="memory-row">
+          <button class="tool-btn" data-action="memory-clear">MC</button>
+          <button class="tool-btn" data-action="memory-recall">MR</button>
+          <button class="tool-btn" data-action="memory-add">M+</button>
+          <button class="tool-btn" data-action="memory-subtract">M−</button>
+          <button class="tool-btn" data-action="ans">Ans</button>
+          <button class="tool-btn" data-action="toggle-angle">DEG/RAD</button>
+        </div>
+        <div class="function-row">
+          <button class="tool-btn" data-insert="sin(">sin</button>
+          <button class="tool-btn" data-insert="cos(">cos</button>
+          <button class="tool-btn" data-insert="tan(">tan</button>
+          <button class="tool-btn" data-insert="asin(">sin⁻¹</button>
+          <button class="tool-btn" data-insert="acos(">cos⁻¹</button>
+          <button class="tool-btn" data-insert="atan(">tan⁻¹</button>
+        </div>
+        <div class="function-row">
+          <button class="tool-btn" data-insert="sqrt(">√x</button>
+          <button class="tool-btn" data-insert="cbrt(">∛x</button>
+          <button class="tool-btn" data-insert="log(">log</button>
+          <button class="tool-btn" data-insert="ln(">ln</button>
+          <button class="tool-btn" data-insert="abs(">abs</button>
+          <button class="tool-btn" data-insert="exp(">eˣ</button>
+        </div>
+        <div class="function-row">
+          <button class="tool-btn" data-insert="π">π</button>
+          <button class="tool-btn" data-insert="e">e</button>
+          <button class="tool-btn" data-insert="^">xʸ</button>
+          <button class="tool-btn" data-insert="^2">x²</button>
+          <button class="tool-btn" data-action="factorial">n!</button>
+          <button class="tool-btn" data-action="random">Rand</button>
+        </div>
+        <div class="keypad" id="keypad">
+          <button class="key danger" data-action="clear">AC</button>
+          <button class="key" data-action="delete"><i class="fa-solid fa-delete-left"></i></button>
+          <button class="key fn" data-insert="(">(</button>
+          <button class="key fn" data-insert=")">)</button>
+          <button class="key op" data-insert="/">÷</button>
+          <button class="key" data-insert="7">7</button>
+          <button class="key" data-insert="8">8</button>
+          <button class="key" data-insert="9">9</button>
+          <button class="key fn" data-insert="%">%</button>
+          <button class="key op" data-insert="*">×</button>
+          <button class="key" data-insert="4">4</button>
+          <button class="key" data-insert="5">5</button>
+          <button class="key" data-insert="6">6</button>
+          <button class="key fn" data-insert="^">xʸ</button>
+          <button class="key op" data-insert="-">−</button>
+          <button class="key" data-insert="1">1</button>
+          <button class="key" data-insert="2">2</button>
+          <button class="key" data-insert="3">3</button>
+          <button class="key fn" data-insert="!">n!</button>
+          <button class="key op" data-insert="+">+</button>
+          <button class="key" data-insert="0">0</button>
+          <button class="key" data-insert=".">.</button>
+          <button class="key" data-action="sign">±</button>
+          <button class="key" data-insert="π">π</button>
+          <button class="key equal" data-action="equals">=</button>
+        </div>
+        <hr>
+        <div class="row">
+          <button class="btn" data-insert="floor(">floor</button>
+          <button class="btn" data-insert="ceil(">ceil</button>
+          <button class="btn" data-insert="round(">round</button>
+          <button class="btn" data-insert="min(">min</button>
+          <button class="btn" data-insert="max(">max</button>
+          <button class="btn" data-insert="pow(">pow</button>
+        </div>
+        <p class="subtle" style="margin:12px 0 0">Keyboard: numbers/operators · <kbd>Enter</kbd> calculate · <kbd>Esc</kbd> clear · <kbd>Backspace</kbd> delete. Use function names like <code>sin(30)</code>, <code>sqrt(81)</code>, <code>log(100)</code>.</p>
+      </section>
+
+      <!-- GRAPH MODULE -->
+      <section class="panel module hidden" id="module-graph">
+        <div class="panel-head"><h2><i class="fa-solid fa-chart-line"></i> Graph Lab</h2><span class="pill">CANVAS PLOTTER</span></div>
+        <div class="grid2">
+          <div class="field"><label for="graphExpression">Function f(x)</label><input class="control mono" id="graphExpression" value="sin(x)" placeholder="e.g. x^2, sin(x), cos(x)*x"></div>
+          <div class="field"><label for="graphColor">Plot color</label><select class="control" id="graphColor"><option value="#818cf8">Indigo</option><option value="#34d399">Emerald</option><option value="#fb7185">Rose</option><option value="#fbbf24">Amber</option><option value="#38bdf8">Sky</option></select></div>
+        </div>
+        <div class="row" style="margin:12px 0">
+          <button class="btn primary" id="plotGraph"><i class="fa-solid fa-play"></i> Plot function</button>
+          <button class="btn" id="addGraph">Add to overlays</button>
+          <button class="btn" id="clearGraphs">Clear overlays</button>
+          <button class="btn" id="zoomIn"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+          <button class="btn" id="zoomOut"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+          <button class="btn" id="resetGraph"><i class="fa-solid fa-house"></i> Reset</button>
+        </div>
+        <div class="grid3" style="margin-bottom:12px">
+          <div class="field"><label for="graphScale">Scale (px/unit)</label><input class="control" id="graphScale" type="number" min="5" max="180" value="45"></div>
+          <div class="field"><label for="graphXMin">X min</label><input class="control" id="graphXMin" type="number" value="-10"></div>
+          <div class="field"><label for="graphXMax">X max</label><input class="control" id="graphXMax" type="number" value="10"></div>
+        </div>
+        <label class="checkline"><input type="checkbox" id="showGrid" checked> Show grid</label>
+        <label class="checkline"><input type="checkbox" id="showAxes" checked> Show axes</label>
+        <div class="canvas-wrap" style="margin-top:12px"><canvas id="graphCanvas" aria-label="Function graph canvas"></canvas><div class="canvas-badge" id="graphCoordinates">x: 0.00 · y: 0.00</div></div>
+        <div class="notice" id="graphStatus" style="margin-top:12px">Tip: drag the plot to pan. Scroll with your mouse wheel to zoom. Supported functions include sin, cos, tan, sqrt, abs, log, ln and exp.</div>
+        <div id="graphLegend" class="row" style="margin-top:10px"></div>
+      </section>
+
+      <!-- MATRIX MODULE -->
+      <section class="panel module hidden" id="module-matrix">
+        <div class="panel-head"><h2><i class="fa-solid fa-table-cells"></i> Matrix Lab</h2><span class="pill">UP TO 3×3</span></div>
+        <div class="grid2">
+          <div class="field"><label for="matrixSize">Matrix size</label><select class="control" id="matrixSize"><option value="2">2 × 2</option><option value="3" selected>3 × 3</option></select></div>
+          <div class="field"><label for="matrixOperation">Operation</label><select class="control" id="matrixOperation"><option value="det">Determinant</option><option value="transpose">Transpose</option><option value="trace">Trace</option><option value="inverse">Inverse</option><option value="add">A + B</option><option value="subtract">A − B</option><option value="multiply">A × B</option></select></div>
+        </div>
+        <div class="grid2" style="margin-top:14px">
+          <div><h3 class="section-title">Matrix A</h3><div class="matrix-grid" id="matrixA"></div></div>
+          <div id="matrixBWrap"><h3 class="section-title">Matrix B</h3><div class="matrix-grid" id="matrixB"></div></div>
+        </div>
+        <div class="row" style="margin-top:14px"><button class="btn primary" id="solveMatrix">Calculate matrix operation</button><button class="btn" id="randomMatrix">Randomize matrices</button><button class="btn" id="identityMatrix">Identity A</button></div>
+        <h3 class="section-title" style="margin-top:18px">Result</h3><div class="output" id="matrixResult">Choose an operation and calculate.</div>
+      </section>
+
+      <!-- STATISTICS MODULE -->
+      <section class="panel module hidden" id="module-stats">
+        <div class="panel-head"><h2><i class="fa-solid fa-chart-pie"></i> Statistical Data Analyzer</h2><span class="pill">DESCRIPTIVE STATS</span></div>
+        <div class="field"><label for="statsInput">Numbers separated by commas, spaces or new lines</label><textarea class="control mono" id="statsInput" rows="4">10, 15, 22, 28, 33, 40, 52</textarea></div>
+        <div class="row" style="margin:12px 0"><button class="btn primary" id="analyzeStats">Analyze dataset</button><button class="btn" id="sortAsc">Sort ascending</button><button class="btn" id="sortDesc">Sort descending</button><button class="btn" id="clearStats">Clear</button></div>
+        <div class="grid4">
+          <div class="stat-card"><span class="label">Count (n)</span><span class="value" id="statCount">—</span></div>
+          <div class="stat-card"><span class="label">Mean</span><span class="value text-accent" id="statMean">—</span></div>
+          <div class="stat-card"><span class="label">Median</span><span class="value text-green" id="statMedian">—</span></div>
+          <div class="stat-card"><span class="label">Mode</span><span class="value" id="statMode">—</span></div>
+          <div class="stat-card"><span class="label">Minimum</span><span class="value" id="statMin">—</span></div>
+          <div class="stat-card"><span class="label">Maximum</span><span class="value" id="statMax">—</span></div>
+          <div class="stat-card"><span class="label">Range</span><span class="value" id="statRange">—</span></div>
+          <div class="stat-card"><span class="label">Std. deviation</span><span class="value" id="statStd">—</span></div>
+          <div class="stat-card"><span class="label">Variance</span><span class="value" id="statVariance">—</span></div>
+          <div class="stat-card"><span class="label">Q1</span><span class="value" id="statQ1">—</span></div>
+          <div class="stat-card"><span class="label">Q3</span><span class="value" id="statQ3">—</span></div>
+          <div class="stat-card"><span class="label">Sum</span><span class="value" id="statSum">—</span></div>
+        </div>
+        <h3 class="section-title" style="margin-top:16px">Sorted data</h3><div class="output" id="statsSorted">Your sorted dataset will appear here.</div>
+      </section>
+
+      <!-- EQUATIONS MODULE -->
+      <section class="panel module hidden" id="module-equations">
+        <div class="panel-head"><h2><i class="fa-solid fa-equals"></i> Equation Solver</h2><span class="pill">LINEAR + QUADRATIC</span></div>
+        <div class="notice">Solve <strong>ax + b = 0</strong> or <strong>ax² + bx + c = 0</strong>. Coefficients can be decimals or negative numbers.</div>
+        <h3 class="section-title" style="margin-top:16px">Linear equation: ax + b = 0</h3>
+        <div class="grid2">
+          <div class="field"><label for="linearA">Coefficient a</label><input class="control" id="linearA" type="number" value="2" step="any"></div>
+          <div class="field"><label for="linearB">Constant b</label><input class="control" id="linearB" type="number" value="-8" step="any"></div>
+        </div>
+        <button class="btn primary" id="solveLinear" style="margin-top:12px">Solve linear equation</button>
+        <div class="output" id="linearResult" style="margin-top:10px">x = 4</div>
+        <hr>
+        <h3 class="section-title">Quadratic equation: ax² + bx + c = 0</h3>
+        <div class="grid3">
+          <div class="field"><label for="quadA">a</label><input class="control" id="quadA" type="number" value="1" step="any"></div>
+          <div class="field"><label for="quadB">b</label><input class="control" id="quadB" type="number" value="-5" step="any"></div>
+          <div class="field"><label for="quadC">c</label><input class="control" id="quadC" type="number" value="6" step="any"></div>
+        </div>
+        <button class="btn primary" id="solveQuadratic" style="margin-top:12px">Solve quadratic equation</button>
+        <div class="output" id="quadraticResult" style="margin-top:10px">Roots will appear here.</div>
+        <hr>
+        <h3 class="section-title">Two-variable linear system</h3>
+        <p class="subtle">Solve a₁x + b₁y = c₁ and a₂x + b₂y = c₂.</p>
+        <div class="grid3">
+          <div class="field"><label for="sysA1">a₁</label><input class="control" id="sysA1" type="number" value="2"></div>
+          <div class="field"><label for="sysB1">b₁</label><input class="control" id="sysB1" type="number" value="1"></div>
+          <div class="field"><label for="sysC1">c₁</label><input class="control" id="sysC1" type="number" value="5"></div>
+          <div class="field"><label for="sysA2">a₂</label><input class="control" id="sysA2" type="number" value="1"></div>
+          <div class="field"><label for="sysB2">b₂</label><input class="control" id="sysB2" type="number" value="-1"></div>
+          <div class="field"><label for="sysC2">c₂</label><input class="control" id="sysC2" type="number" value="1"></div>
+        </div>
+        <button class="btn primary" id="solveSystem" style="margin-top:12px">Solve system</button>
+        <div class="output" id="systemResult" style="margin-top:10px">x and y will appear here.</div>
+      </section>
+
+      <!-- UNIT CONVERTER MODULE -->
+      <section class="panel module hidden" id="module-units">
+        <div class="panel-head"><h2><i class="fa-solid fa-scale-balanced"></i> Universal Unit Converter</h2><span class="pill">LIVE CONVERSION</span></div>
+        <div class="grid2">
+          <div class="field"><label for="unitCategory">Category</label><select class="control" id="unitCategory">
+            <option value="length">Length</option><option value="mass">Mass / Weight</option><option value="temperature">Temperature</option><option value="data">Digital storage</option><option value="time">Time</option><option value="area">Area</option><option value="speed">Speed</option><option value="volume">Volume</option><option value="pressure">Pressure</option>
+          </select></div>
+          <div class="field"><label for="unitValue">Value</label><input class="control mono" id="unitValue" type="number" value="1" step="any"></div>
+          <div class="field"><label for="unitFrom">From</label><select class="control" id="unitFrom"></select></div>
+          <div class="field"><label for="unitTo">To</label><select class="control" id="unitTo"></select></div>
+        </div>
+        <div class="row" style="margin-top:12px"><button class="btn" id="swapUnits"><i class="fa-solid fa-arrow-right-arrow-left"></i> Swap units</button><button class="btn primary" id="convertUnits">Convert</button></div>
+        <div class="stat-card" style="margin-top:14px"><span class="label">Converted result</span><span class="value text-green" id="unitResult">100</span><p class="subtle" id="unitFormula" style="margin-bottom:0">1 Meter = 100 Centimeters</p></div>
+      </section>
+
+      <!-- NUMBER TOOLS MODULE -->
+      <section class="panel module hidden" id="module-number">
+        <div class="panel-head"><h2><i class="fa-solid fa-hashtag"></i> Number Tools</h2><span class="pill">BASE CONVERTER + NUMBER THEORY</span></div>
+        <h3 class="section-title">Number base converter</h3>
+        <div class="grid2">
+          <div class="field"><label for="baseValue">Number</label><input class="control mono" id="baseValue" value="255"></div>
+          <div class="field"><label for="baseFrom">Input base</label><select class="control" id="baseFrom"><option value="10">Decimal (10)</option><option value="2">Binary (2)</option><option value="8">Octal (8)</option><option value="16">Hexadecimal (16)</option></select></div>
+        </div>
+        <button class="btn primary" id="convertBase" style="margin-top:12px">Convert number</button>
+        <div class="grid2" style="margin-top:12px">
+          <div class="stat-card"><span class="label">Binary</span><span class="value" id="base2">—</span></div>
+          <div class="stat-card"><span class="label">Octal</span><span class="value" id="base8">—</span></div>
+          <div class="stat-card"><span class="label">Decimal</span><span class="value" id="base10">—</span></div>
+          <div class="stat-card"><span class="label">Hexadecimal</span><span class="value" id="base16">—</span></div>
+        </div>
+        <hr>
+        <h3 class="section-title">Prime / factors / GCD / LCM</h3>
+        <div class="grid2">
+          <div class="field"><label for="integerA">Integer A</label><input class="control" id="integerA" type="number" value="84"></div>
+          <div class="field"><label for="integerB">Integer B</label><input class="control" id="integerB" type="number" value="30"></div>
+        </div>
+        <button class="btn primary" id="analyzeIntegers" style="margin-top:12px">Analyze integers</button>
+        <div class="output" id="integerResult" style="margin-top:10px">Result will appear here.</div>
+        <hr>
+        <h3 class="section-title">Random number generator</h3>
+        <div class="grid3">
+          <div class="field"><label for="randomMin">Minimum</label><input class="control" id="randomMin" type="number" value="1"></div>
+          <div class="field"><label for="randomMax">Maximum</label><input class="control" id="randomMax" type="number" value="100"></div>
+          <div class="field"><label for="randomCount">How many</label><input class="control" id="randomCount" type="number" min="1" max="100" value="5"></div>
+        </div>
+        <button class="btn primary" id="generateRandom" style="margin-top:12px">Generate random integers</button>
+        <div class="output" id="randomResult" style="margin-top:10px">Random values will appear here.</div>
+      </section>
+
+      <!-- HELP MODULE -->
+      <section class="panel module hidden" id="module-help">
+        <div class="panel-head"><h2><i class="fa-solid fa-circle-question"></i> Help & Formula Guide</h2><span class="pill">QUICK REFERENCE</span></div>
+        <div class="notice">PRIDO Math Lab Pro is a browser-based learning tool. Calculations run locally in your browser; no account is required.</div>
+        <details open style="margin-top:12px"><summary>Calculator syntax</summary><p>Use <code>sin(30)</code>, <code>sqrt(16)</code>, <code>log(100)</code>, <code>ln(e)</code>, <code>abs(-9)</code>, <code>2^8</code>, <code>5!</code>, <code>min(2,3)</code>, <code>max(4,8)</code>, <code>π</code> or <code>e</code>. Trigonometry follows the selected DEG/RAD mode. The expression parser only accepts known math tokens and does not use JavaScript eval.</p></details>
+        <details style="margin-top:8px"><summary>Graphing tips</summary><p>Type an expression in terms of x, for example <code>x^2</code>, <code>sin(x)</code>, <code>cos(x)*x</code> or <code>sqrt(abs(x))</code>. Drag to pan, scroll to zoom, and use overlays to compare functions.</p></details>
+        <details style="margin-top:8px"><summary>Matrix formulas</summary><p>For a 2×2 matrix, det(A)=ad−bc. The inverse exists only when det(A) is non-zero. For a 3×3 matrix, determinant and inverse are calculated using cofactors / Gaussian elimination.</p></details>
+        <details style="margin-top:8px"><summary>Statistics definitions</summary><p>Population variance divides the sum of squared deviations by n; population standard deviation is the square root of that variance. Quartiles use the median-of-halves method.</p></details>
+        <details style="margin-top:8px"><summary>Keyboard shortcuts</summary><p><kbd>Enter</kbd> evaluates; <kbd>Esc</kbd> clears; <kbd>Backspace</kbd> deletes the previous character; type digits and operators directly. Input fields retain their own typing behavior.</p></details>
+        <hr>
+        <h3 class="section-title">About PRIDO</h3>
+        <p class="subtle" style="line-height:1.8">PRIDO Math Lab Pro is an educational project by <strong>Pritam Kumar Mandal</strong>, designed to bring common scientific, graphing, statistical and conversion tools into one responsive interface.</p>
+      </section>
+    </section>
+
+    <!-- SIDEBAR -->
+    <aside class="stack side-layout">
+      <section class="panel">
+        <div class="panel-head"><h3><i class="fa-solid fa-clock-rotate-left"></i> Calculation History</h3><div class="row"><span class="pill" id="historyCount">0 items</span><button class="icon-btn" id="clearHistory" title="Clear history" style="width:30px;height:30px"><i class="fa-solid fa-trash"></i></button></div></div>
+        <div class="history-list" id="historyList"><div class="subtle" style="text-align:center;padding:30px 0">No calculations yet.</div></div>
+        <div class="row" style="margin-top:10px"><button class="btn" id="copyHistory">Copy history</button><button class="btn" id="downloadHistory">Download CSV</button></div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><h3><i class="fa-solid fa-bolt"></i> Quick Tools</h3></div>
+        <div class="grid2">
+          <button class="btn" data-quick="percent">Percentage</button>
+          <button class="btn" data-quick="bmi">BMI helper</button>
+          <button class="btn" data-quick="discount">Discount</button>
+          <button class="btn" data-quick="quadratic">Quadratic</button>
+        </div>
+        <div id="quickToolPanel" class="notice" style="margin-top:12px">Choose a quick tool to open a small helper.</div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><h3><i class="fa-solid fa-keyboard"></i> Keyboard & Status</h3></div>
+        <div class="row" style="justify-content:space-between;margin-bottom:8px"><span class="subtle">Math engine</span><span class="text-green small">● Ready</span></div>
+        <div class="row" style="justify-content:space-between;margin-bottom:8px"><span class="subtle">Graph canvas</span><span class="text-green small">● Enabled</span></div>
+        <div class="row" style="justify-content:space-between;margin-bottom:8px"><span class="subtle">Offline calculations</span><span class="text-green small">● Local</span></div>
+        <hr>
+        <p class="subtle" style="line-height:1.9;margin-bottom:0">Evaluate <kbd>Enter</kbd><br>Clear <kbd>Esc</kbd><br>Delete <kbd>Backspace</kbd><br>Power <kbd>^</kbd><br>Tip: use parentheses to control order of operations.</p>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><h3><i class="fa-solid fa-shield-halved"></i> Safety Note</h3></div>
+        <p class="subtle" style="line-height:1.8;margin:0">Expressions are parsed with an allow-list of mathematical functions and operators rather than JavaScript eval. Results may be rounded for display; use a dedicated precision library for high-precision scientific work.</p>
+      </section>
+    </aside>
+  </main>
+
+  <footer class="footer">
+    <span><strong>PRIDO Math Lab Pro</strong> · Designed & developed by <strong class="text-accent">Pritam Kumar Mandal</strong></span>
+    <span>HTML · CSS · JavaScript · Canvas API <i class="fa-solid fa-circle text-green small"></i></span>
+  </footer>
+</div>
+<div class="toast-area" id="toastArea" aria-live="polite"></div>
+
+<script>
+"use strict";
+/* ================================================================
+   1. APP STATE
+   ================================================================ */
+const App = {
+  expression: "",
+  answer: 0,
+  memory: 0,
+  angle: "DEG",
+  sound: false,
+  history: [],
+  overlays: [],
+  graph: { scale: 45, offsetX: 0, offsetY: 0, dragging: false, lastX: 0, lastY: 0 },
+  audio: null,
+  theme: "dark"
+};
+
+/* ================================================================
+   2. DOM HELPERS AND NOTIFICATIONS
+   ================================================================ */
+const $ = (selector, root=document) => root.querySelector(selector);
+const $$ = (selector, root=document) => [...root.querySelectorAll(selector)];
+const byId = id => document.getElementById(id);
+const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+const fmt = (value, digits=10) => {
+  if (typeof value !== "number" || !Number.isFinite(value)) return String(value);
+  if (Object.is(value, -0)) return "0";
+  return Number(value.toPrecision(digits)).toString();
+};
+function toast(message, type="ok") {
+  const node = document.createElement("div");
+  node.className = `toast ${type}`;
+  node.textContent = message;
+  $("#toastArea").append(node);
+  window.setTimeout(() => node.remove(), 3000);
+}
+function safeText(element, text) {
+  element.textContent = String(text);
+}
+function playTone(frequency=440, duration=0.045, wave="sine") {
+  if (!App.sound) return;
+  try {
+    App.audio ||= new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = App.audio.createOscillator();
+    const gain = App.audio.createGain();
+    oscillator.type = wave;
+    oscillator.frequency.value = frequency;
+    gain.gain.setValueAtTime(0.035, App.audio.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, App.audio.currentTime + duration);
+    oscillator.connect(gain);
+    gain.connect(App.audio.destination);
+    oscillator.start();
+    oscillator.stop(App.audio.currentTime + duration);
+  } catch (error) { /* audio is optional */ }
+}
+function setStatus(message) { safeText(byId("displayStatus"), message); }
+
+/* ================================================================
+   3. SAFE MATHEMATICAL EXPRESSION TOKENIZER AND PARSER
+   Does not evaluate arbitrary JavaScript.
+   ================================================================ */
+const FUNCTIONS = {
+  sin: x => Math.sin(toRadians(x)),
+  cos: x => Math.cos(toRadians(x)),
+  tan: x => Math.tan(toRadians(x)),
+  asin: x => fromRadians(Math.asin(x)),
+  acos: x => fromRadians(Math.acos(x)),
+  atan: x => fromRadians(Math.atan(x)),
+  sqrt: Math.sqrt,
+  cbrt: Math.cbrt,
+  abs: Math.abs,
+  log: Math.log10,
+  ln: Math.log,
+  exp: Math.exp,
+  floor: Math.floor,
+  ceil: Math.ceil,
+  round: Math.round,
+  min: Math.min,
+  max: Math.max,
+  pow: Math.pow,
+  sign: Math.sign,
+  sinh: Math.sinh,
+  cosh: Math.cosh,
+  tanh: Math.tanh
+};
+function toRadians(value) { return App.angle === "DEG" ? value * Math.PI / 180 : value; }
+function fromRadians(value) { return App.angle === "DEG" ? value * 180 / Math.PI : value; }
+function tokenize(source) {
+  let text = source.replace(/×/g,"*").replace(/÷/g,"/").replace(/π/g,"pi").replace(/\s+/g,"");
+  text = text.replace(/(\d|\))(?=(pi|e|[a-zA-Z]|\())/g,"$1*");
+  text = text.replace(/(pi|e|\))(?=\d|\()/g,"$1*");
+  const tokens = [];
+  let i = 0;
+  while (i < text.length) {
+    const rest = text.slice(i);
+    const number = rest.match(/^(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?/i);
+    if (number) { tokens.push({type:"number", value:Number(number[0])}); i += number[0].length; continue; }
+    const identifier = rest.match(/^[a-zA-Z_][a-zA-Z_0-9]*/);
+    if (identifier) {
+      const name = identifier[0].toLowerCase();
+      if (name === "pi") tokens.push({type:"number",value:Math.PI});
+      else if (name === "e") tokens.push({type:"number",value:Math.E});
+      else if (name === "ans") tokens.push({type:"number",value:App.answer});
+      else if (Object.hasOwn(FUNCTIONS,name)) tokens.push({type:"function",value:name});
+      else throw new Error(`Unknown token: ${identifier[0]}`);
+      i += identifier[0].length; continue;
+    }
+    const char = text[i];
+    if ("+-*/%^!(),".includes(char)) { tokens.push({type:char,value:char}); i++; continue; }
+    throw new Error(`Invalid character: ${char}`);
+  }
+  return tokens;
+}
+function factorial(n) {
+  if (!Number.isInteger(n) || n < 0 || n > 170) throw new Error("Factorial requires an integer from 0 to 170.");
+  let result = 1;
+  for (let k=2;k<=n;k++) result *= k;
+  return result;
+}
+function evaluateExpression(source) {
+  if (!source.trim()) throw new Error("Enter a mathematical expression first.");
+  const tokens = tokenize(source);
+  let pos = 0;
+  const peek = () => tokens[pos];
+  const take = () => tokens[pos++];
+  const expect = type => {
+    const token = take();
+    if (!token || token.type !== type) throw new Error(`Expected "${type}".`);
+    return token;
+  };
+  function primary() {
+    const token = take();
+    if (!token) throw new Error("Expression is incomplete.");
+    if (token.type === "number") return token.value;
+    if (token.type === "+") return unary();
+    if (token.type === "-") return -unary();
+    if (token.type === "(") {
+      const value = expression(0);
+      expect(")");
+      return value;
+    }
+    if (token.type === "function") {
+      expect("(");
+      const args = [];
+      if (peek() && peek().type !== ")") {
+        args.push(expression(0));
+        while (peek() && peek().type === ",") { take(); args.push(expression(0)); }
+      }
+      expect(")");
+      const fn = FUNCTIONS[token.value];
+      if ((token.value === "min" || token.value === "max") && args.length < 1) throw new Error(`${token.value} needs an argument.`);
+      if (token.value !== "min" && token.value !== "max" && token.value !== "pow" && args.length !== 1) throw new Error(`${token.value} takes one argument.`);
+      if (token.value === "pow" && args.length !== 2) throw new Error("pow takes two arguments.");
+      return fn(...args);
+    }
+    throw new Error("Unexpected token in expression.");
+  }
+  function unary() { return primary(); }
+  const precedence = {"+":1,"-":1,"*":2,"/":2,"%":2,"^":4,"!":5};
+  function expression(minPrecedence) {
+    let left = primary();
+    while (peek()) {
+      const op = peek().type;
+      if (op === "!") {
+        if (precedence[op] < minPrecedence) break;
+        take(); left = factorial(left); continue;
+      }
+      const p = precedence[op];
+      if (!p || p < minPrecedence) break;
+      take();
+      const right = expression(p + (op === "^" ? 0 : 1));
+      if (op === "+") left += right;
+      else if (op === "-") left -= right;
+      else if (op === "*") left *= right;
+      else if (op === "/") {
+        if (right === 0) throw new Error("Division by zero.");
+        left /= right;
+      } else if (op === "%") left %= right;
+      else if (op === "^") left = Math.pow(left,right);
+    }
+    return left;
+  }
+  const result = expression(0);
+  if (pos !== tokens.length) throw new Error("Check your parentheses and operators.");
+  if (!Number.isFinite(result)) throw new Error("The result is not a finite real number.");
+  return result;
+}
+
+/* ================================================================
+   4. CALCULATOR DISPLAY, KEYPAD, MEMORY AND HISTORY
+   ================================================================ */
+function renderDisplay() {
+  safeText(byId("expressionPreview"), App.expression || "Ready for your calculation");
+  safeText(byId("mainResult"), App.expression ? "…" : fmt(App.answer));
+  safeText(byId("angleBadge"), `${App.angle} MODE`);
+  byId("memoryBadge").hidden = App.memory === 0;
+  safeText(byId("memoryValue"), fmt(App.memory));
+}
+function insertExpression(value) {
+  App.expression += value;
+  renderDisplay();
+  setStatus("Editing");
+  playTone(440,0.025);
+}
+function clearExpression() {
+  App.expression = "";
+  renderDisplay();
+  setStatus("Ready");
+  playTone(280,0.05,"triangle");
+}
+function deleteExpression() {
+  App.expression = App.expression.slice(0,-1);
+  renderDisplay();
+  playTone(350,0.025);
+}
+function recordHistory(expression,result) {
+  App.history.unshift({expression,result:fmt(result),time:new Date().toISOString()});
+  App.history = App.history.slice(0,100);
+  renderHistory();
+}
+function calculate() {
+  try {
+    const expression = App.expression;
+    const result = evaluateExpression(expression);
+    App.answer = result;
+    byId("mainResult").textContent = fmt(result);
+    byId("expressionPreview").textContent = expression + " =";
+    App.expression = String(result);
+    setStatus("Calculated");
+    recordHistory(expression,result);
+    playTone(760,0.08,"triangle");
+  } catch (error) {
+    setStatus("Check expression");
+    toast(error.message || "Unable to calculate expression.","error");
+    playTone(180,0.1,"sawtooth");
+  }
+}
+function useMemory(action) {
+  if (action === "memory-clear") App.memory = 0;
+  if (action === "memory-recall") insertExpression(fmt(App.memory));
+  if (action === "memory-add") { App.memory += App.answer; toast("Added answer to memory."); }
+  if (action === "memory-subtract") { App.memory -= App.answer; toast("Subtracted answer from memory."); }
+  if (action === "ans") insertExpression("ans");
+  if (action === "toggle-angle") {
+    App.angle = App.angle === "DEG" ? "RAD" : "DEG";
+    toast(`Angle mode: ${App.angle}`);
+  }
+  renderDisplay();
+}
+function factorialCurrent() {
+  try {
+    const result = factorial(evaluateExpression(App.expression));
+    const before = App.expression;
+    App.answer = result;
+    App.expression = String(result);
+    byId("mainResult").textContent = fmt(result);
+    byId("expressionPreview").textContent = `${before}! =`;
+    recordHistory(`${before}!`,result);
+  } catch(error) { toast(error.message,"error"); }
+}
+function randomCurrent() { insertExpression(fmt(Math.random())); }
+function changeSign() {
+  if (!App.expression) { App.expression = "-"; }
+  else if (App.expression.startsWith("-(") && App.expression.endsWith(")")) App.expression = App.expression.slice(2,-1);
+  else App.expression = `-(${App.expression})`;
+  renderDisplay();
+}
+function renderHistory() {
+  safeText(byId("historyCount"),`${App.history.length} items`);
+  const list = byId("historyList");
+  list.replaceChildren();
+  if (!App.history.length) {
+    const empty = document.createElement("div");
+    empty.className = "subtle"; empty.style.cssText = "text-align:center;padding:30px 0";
+    empty.textContent = "No calculations yet."; list.append(empty); return;
+  }
+  App.history.forEach((item,index) => {
+    const card = document.createElement("button");
+    card.type = "button"; card.className = "history-item"; card.style.textAlign = "left";
+    const expr = document.createElement("div"); expr.className = "history-expr"; expr.textContent = item.expression;
+    const result = document.createElement("div"); result.className = "history-result"; result.textContent = `= ${item.result}`;
+    card.append(expr,result);
+    card.addEventListener("click",() => {
+      App.expression = item.result; App.answer = Number(item.result); renderDisplay(); switchModule("calc");
+    });
+    list.append(card);
+  });
+}
+function clearHistory() { App.history=[]; renderHistory(); toast("History cleared."); }
+function exportHistoryCSV() {
+  const rows = [["Expression","Result","Time"],...App.history.map(h=>[h.expression,h.result,h.time])];
+  const csv = rows.map(row=>row.map(value=>`"${String(value).replaceAll('"','""')}"`).join(",")).join("\r\n");
+  downloadBlob(csv,"prido-calculation-history.csv","text/csv;charset=utf-8");
+}
+function copyHistory() {
+  const text = App.history.map(item=>`${item.expression} = ${item.result}`).join("\n");
+  if (!text) { toast("There is no history to copy.","error"); return; }
+  navigator.clipboard?.writeText(text).then(()=>toast("History copied.")).catch(()=>toast("Clipboard access is unavailable.","error"));
+}
+function downloadBlob(content,filename,type="text/plain") {
+  const blob = new Blob([content],{type});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href=url; link.download=filename; document.body.append(link); link.click(); link.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* ================================================================
+   5. MODULE NAVIGATION, THEME AND RESET
+   ================================================================ */
+function switchModule(name) {
+  $$(".module").forEach(section=>section.classList.toggle("hidden",section.id!==`module-${name}`));
+  $$(".nav-btn").forEach(button=>button.classList.toggle("active",button.dataset.module===name));
+  if (name==="graph") requestAnimationFrame(drawGraph);
+  if (name==="matrix") buildMatrixInputs();
+}
+function toggleTheme() {
+  App.theme = App.theme === "dark" ? "light" : "dark";
+  document.documentElement.classList.toggle("light",App.theme==="light");
+  document.documentElement.classList.toggle("dark",App.theme==="dark");
+  $("#themeToggle i").className = App.theme==="dark" ? "fa-solid fa-sun" : "fa-solid fa-moon";
+  if (byId("graphCanvas")) drawGraph();
+}
+function resetCalculator() {
+  App.expression=""; App.answer=0; App.memory=0; App.angle="DEG";
+  renderDisplay(); toast("Calculator reset.");
+}
+
+/* ================================================================
+   6. GRAPHING ENGINE
+   ================================================================ */
+let graphCanvas = null;
+let graphContext = null;
+function setupGraphCanvas() {
+  graphCanvas = byId("graphCanvas");
+  graphContext = graphCanvas.getContext("2d");
+  resizeGraphCanvas();
+  App.graph.offsetX = graphCanvas.width/2;
+  App.graph.offsetY = graphCanvas.height/2;
+  graphCanvas.addEventListener("pointerdown",event=>{
+    App.graph.dragging=true; App.graph.lastX=event.clientX; App.graph.lastY=event.clientY;
+    graphCanvas.setPointerCapture(event.pointerId);
+  });
+  graphCanvas.addEventListener("pointermove",event=>{
+    const rect=graphCanvas.getBoundingClientRect();
+    const x=(event.clientX-rect.left-App.graph.offsetX)/App.graph.scale;
+    const y=-(event.clientY-rect.top-App.graph.offsetY)/App.graph.scale;
+    safeText(byId("graphCoordinates"),`x: ${x.toFixed(2)} · y: ${y.toFixed(2)}`);
+    if (!App.graph.dragging) return;
+    App.graph.offsetX += event.clientX-App.graph.lastX;
+    App.graph.offsetY += event.clientY-App.graph.lastY;
+    App.graph.lastX=event.clientX; App.graph.lastY=event.clientY; drawGraph();
+  });
+  graphCanvas.addEventListener("pointerup",()=>App.graph.dragging=false);
+  graphCanvas.addEventListener("pointercancel",()=>App.graph.dragging=false);
+  graphCanvas.addEventListener("wheel",event=>{
+    event.preventDefault();
+    const rect=graphCanvas.getBoundingClientRect();
+    const px=event.clientX-rect.left, py=event.clientY-rect.top;
+    const factor=event.deltaY<0?1.12:0.89;
+    App.graph.offsetX=px-(px-App.graph.offsetX)*factor;
+    App.graph.offsetY=py-(py-App.graph.offsetY)*factor;
+    App.graph.scale=clamp(App.graph.scale*factor,5,180);
+    byId("graphScale").value=App.graph.scale; drawGraph();
+  },{passive:false});
+  window.addEventListener("resize",resizeGraphCanvas);
+}
+function resizeGraphCanvas() {
+  if (!graphCanvas) return;
+  const rect=graphCanvas.getBoundingClientRect();
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  const oldWidth=graphCanvas.width, oldHeight=graphCanvas.height;
+  graphCanvas.width=Math.max(1,Math.floor(rect.width*dpr));
+  graphCanvas.height=Math.max(1,Math.floor(rect.height*dpr));
+  graphContext.setTransform(dpr,0,0,dpr,0,0);
+  if (oldWidth && oldHeight && App.graph.offsetX===0 && App.graph.offsetY===0) {
+    App.graph.offsetX=rect.width/2; App.graph.offsetY=rect.height/2;
+  } else if (oldWidth && oldHeight) {
+    App.graph.offsetX=rect.width/2+(App.graph.offsetX-oldWidth/2);
+    App.graph.offsetY=rect.height/2+(App.graph.offsetY-oldHeight/2);
+  }
+  drawGraph();
+}
+function graphEval(expression,x) {
+  const source=expression.replace(/\bx\b/g,`(${x})`);
+  return evaluateExpression(source);
+}
+function plotCurrentGraph(add=false) {
+  const expression=byId("graphExpression").value.trim();
+  if (!expression) { toast("Enter a function first.","error"); return; }
+  try { graphEval(expression,0.5); }
+  catch(error) { toast(`Graph expression: ${error.message}`,"error"); return; }
+  const color=byId("graphColor").value;
+  if (add) App.overlays.push({expression,color});
+  else App.overlays=[{expression,color}];
+  renderGraphLegend(); drawGraph();
+  safeText(byId("graphStatus"),`Plotting ${expression}. Drag to pan; scroll to zoom.`);
+}
+function renderGraphLegend() {
+  const legend=byId("graphLegend"); legend.replaceChildren();
+  App.overlays.forEach((item,index)=>{
+    const chip=document.createElement("button"); chip.className="btn"; chip.style.borderColor=item.color;
+    chip.textContent=`${index+1}: ${item.expression}`;
+    chip.addEventListener("click",()=>{App.overlays.splice(index,1);renderGraphLegend();drawGraph();});
+    legend.append(chip);
+  });
+}
+function drawGraph() {
+  if (!graphCanvas || !graphContext) return;
+  const rect=graphCanvas.getBoundingClientRect();
+  const width=rect.width, height=rect.height;
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  if (graphCanvas.width!==Math.round(width*dpr)||graphCanvas.height!==Math.round(height*dpr)) {
+    graphCanvas.width=Math.max(1,Math.round(width*dpr)); graphCanvas.height=Math.max(1,Math.round(height*dpr));
+    graphContext.setTransform(dpr,0,0,dpr,0,0);
+  }
+  const ctx=graphContext, scale=App.graph.scale, ox=App.graph.offsetX, oy=App.graph.offsetY;
+  ctx.clearRect(0,0,width,height);
+  ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue("--bg").trim()||"#090d16";
+  ctx.fillRect(0,0,width,height);
+  if (byId("showGrid").checked) {
+    ctx.strokeStyle=App.theme==="dark"?"#202b42":"#e2e8f0"; ctx.lineWidth=1; ctx.beginPath();
+    const step=scale;
+    for(let x=((ox%step)+step)%step;x<width;x+=step){ctx.moveTo(x,0);ctx.lineTo(x,height);}
+    for(let y=((oy%step)+step)%step;y<height;y+=step){ctx.moveTo(0,y);ctx.lineTo(width,y);}
+    ctx.stroke();
+  }
+  if (byId("showAxes").checked) {
+    ctx.strokeStyle=App.theme==="dark"?"#64748b":"#94a3b8"; ctx.lineWidth=1.6; ctx.beginPath();
+    ctx.moveTo(0,oy);ctx.lineTo(width,oy);ctx.moveTo(ox,0);ctx.lineTo(ox,height);ctx.stroke();
+    ctx.fillStyle=App.theme==="dark"?"#94a3b8":"#475569";ctx.font="11px 'Fira Code'";
+    ctx.fillText("x",width-14,oy-7);ctx.fillText("y",ox+7,13);
+  }
+  App.overlays.forEach(item=>{
+    ctx.strokeStyle=item.color;ctx.lineWidth=2.5;ctx.beginPath();let started=false;let lastPy=null;
+    for(let px=0;px<=width;px+=1.5){
+      const x=(px-ox)/scale;
+      try{
+        const y=graphEval(item.expression,x);
+        const py=oy-y*scale;
+        if(!Number.isFinite(py)||Math.abs(py)>height*8){started=false;lastPy=null;continue;}
+        if(started&&lastPy!==null&&Math.abs(py-lastPy)<height*0.7)ctx.lineTo(px,py);
+        else ctx.moveTo(px,py);
+        started=true;lastPy=py;
+      }catch(error){started=false;lastPy=null;}
+    }
+    ctx.stroke();
+  });
+}
+function resetGraph() {
+  App.graph.scale=45;
+  App.graph.offsetX=graphCanvas.clientWidth/2;
+  App.graph.offsetY=graphCanvas.clientHeight/2;
+  byId("graphScale").value=45;
+  drawGraph();
+}
+
+/* ================================================================
+   7. MATRIX LAB — determinant, transpose, inverse and arithmetic
+   ================================================================ */
+function buildMatrixInputs() {
+  const size=Number(byId("matrixSize").value);
+  ["matrixA","matrixB"].forEach((id,which)=>{
+    const host=byId(id);host.replaceChildren();host.style.gridTemplateColumns=`repeat(${size},minmax(0,1fr))`;
+    for(let r=0;r<size;r++) for(let c=0;c<size;c++){
+      const input=document.createElement("input");
+      input.className="control mono";input.type="number";input.step="any";input.value=which===0?(r===c?"1":String(r*size+c+1)):(r===c?"1":"0");
+      input.dataset.row=r;input.dataset.col=c;host.append(input);
+    }
+  });
+  byId("matrixBWrap").classList.toggle("hidden",!["add","subtract","multiply"].includes(byId("matrixOperation").value));
+}
+function readMatrix(id) {
+  const size=Number(byId("matrixSize").value), inputs=$$("#"+id+" input");
+  return Array.from({length:size},(_,r)=>Array.from({length:size},(_,c)=>Number(inputs[r*size+c].value||0)));
+}
+function determinant(matrix) {
+  const n=matrix.length;
+  if(n===1)return matrix[0][0];
+  if(n===2)return matrix[0][0]*matrix[1][1]-matrix[0][1]*matrix[1][0];
+  let det=0;
+  for(let c=0;c<n;c++){
+    const minor=matrix.slice(1).map(row=>row.filter((_,j)=>j!==c));
+    det+=(c%2?-1:1)*matrix[0][c]*determinant(minor);
+  }
+  return det;
+}
+function transpose(matrix) { return matrix[0].map((_,c)=>matrix.map(row=>row[c])); }
+function inverseMatrix(matrix) {
+  const n=matrix.length;
+  const a=matrix.map((row,r)=>[...row,...Array.from({length:n},(_,c)=>r===c?1:0)]);
+  for(let c=0;c<n;c++){
+    let pivot=c;
+    for(let r=c+1;r<n;r++)if(Math.abs(a[r][c])>Math.abs(a[pivot][c]))pivot=r;
+    if(Math.abs(a[pivot][c])<1e-12)throw new Error("Matrix is singular; inverse does not exist.");
+    [a[c],a[pivot]]=[a[pivot],a[c]];
+    const divisor=a[c][c];for(let j=0;j<2*n;j++)a[c][j]/=divisor;
+    for(let r=0;r<n;r++)if(r!==c){const factor=a[r][c];for(let j=0;j<2*n;j++)a[r][j]-=factor*a[c][j];}
+  }
+  return a.map(row=>row.slice(n));
+}
+function matrixToText(matrix) { return matrix.map(row=>"[ "+row.map(v=>fmt(v,8)).join(", ")+" ]").join("\n"); }
+function solveMatrix() {
+  try {
+    const A=readMatrix("matrixA"),B=readMatrix("matrixB"),op=byId("matrixOperation").value;
+    let result;
+    if(op==="det")result=`det(A) = ${fmt(determinant(A))}`;
+    else if(op==="trace")result=`trace(A) = ${fmt(A.reduce((sum,row,i)=>sum+row[i],0))}`;
+    else if(op==="transpose")result=matrixToText(transpose(A));
+    else if(op==="inverse")result=matrixToText(inverseMatrix(A));
+    else if(op==="add")result=matrixToText(A.map((row,r)=>row.map((v,c)=>v+B[r][c])));
+    else if(op==="subtract")result=matrixToText(A.map((row,r)=>row.map((v,c)=>v-B[r][c])));
+    else if(op==="multiply")result=matrixToText(A.map((row,r)=>row.map((_,c)=>row.reduce((sum,v,k)=>sum+v*B[k][c],0))));
+    safeText(byId("matrixResult"),result);playTone(540,0.05);toast("Matrix operation completed.");
+  }catch(error){safeText(byId("matrixResult"),error.message);toast(error.message,"error");}
+}
+function randomizeMatrices() {
+  ["matrixA","matrixB"].forEach(id=>$$("#"+id+" input").forEach(input=>input.value=Math.floor(Math.random()*11)-5));
+}
+function identityMatrix() {
+  const size=Number(byId("matrixSize").value);
+  $$("#matrixA input").forEach((input,index)=>input.value=Math.floor(index/size)===index%size?1:0);
+}
+
+/* ================================================================
+   8. STATISTICS — population descriptive statistics
+   ================================================================ */
+function parseDataset() {
+  const raw=byId("statsInput").value.trim();
+  if(!raw)throw new Error("Enter at least one number.");
+  const values=raw.split(/[\s,;]+/).filter(Boolean).map(Number);
+  if(!values.length||values.some(value=>!Number.isFinite(value)))throw new Error("Dataset contains an invalid number.");
+  return values;
+}
+function median(values) {
+  const n=values.length,mid=Math.floor(n/2);
+  return n%2?values[mid]:(values[mid-1]+values[mid])/2;
+}
+function quartile(values,upper) {
+  if(values.length<2)return values[0];
+  const half=upper?values.slice(Math.ceil(values.length/2)):values.slice(0,Math.floor(values.length/2));
+  return median(half);
+}
+function analyzeStats() {
+  try {
+    const values=parseDataset(),sorted=[...values].sort((a,b)=>a-b),n=sorted.length;
+    const sum=values.reduce((a,b)=>a+b,0),mean=sum/n,med=median(sorted);
+    const counts=new Map();values.forEach(v=>counts.set(v,(counts.get(v)||0)+1));
+    const maxFrequency=Math.max(...counts.values()),modes=maxFrequency===1?["No repeated mode"]:[...counts].filter(([,count])=>count===maxFrequency).map(([value])=>fmt(value));
+    const variance=values.reduce((total,value)=>total+(value-mean)**2,0)/n;
+    const stats={
+      statCount:n,statMean:fmt(mean),statMedian:fmt(med),statMode:modes.join(", "),
+      statMin:fmt(sorted[0]),statMax:fmt(sorted[n-1]),statRange:fmt(sorted[n-1]-sorted[0]),
+      statStd:fmt(Math.sqrt(variance)),statVariance:fmt(variance),statQ1:fmt(quartile(sorted,false)),
+      statQ3:fmt(quartile(sorted,true)),statSum:fmt(sum)
+    };
+    Object.entries(stats).forEach(([id,value])=>safeText(byId(id),value));
+    safeText(byId("statsSorted"),sorted.map(fmt).join(", "));
+    toast("Dataset analyzed.");
+  }catch(error){toast(error.message,"error");}
+}
+function sortDataset(descending=false) {
+  try {
+    const values=parseDataset().sort((a,b)=>descending?b-a:a-b);
+    byId("statsInput").value=values.join(", ");
+    safeText(byId("statsSorted"),values.map(fmt).join(", "));
+  }catch(error){toast(error.message,"error");}
+}
+
+/* ================================================================
+   9. EQUATION SOLVER
+   ================================================================ */
+function numericInput(id) {
+  const value=Number(byId(id).value);
+  if(!Number.isFinite(value))throw new Error(`Enter a valid number for ${id}.`);
+  return value;
+}
+function solveLinear() {
+  try {
+    const a=numericInput("linearA"),b=numericInput("linearB");
+    let result;
+    if(a===0)result=b===0?"Infinitely many solutions (identity equation).":"No solution (contradiction).";
+    else result=`x = ${fmt(-b/a)}`;
+    safeText(byId("linearResult"),result);
+  }catch(error){toast(error.message,"error");}
+}
+function solveQuadratic() {
+  try {
+    const a=numericInput("quadA"),b=numericInput("quadB"),c=numericInput("quadC");
+    if(a===0){
+      if(b===0)throw new Error(c===0?"Every x is a solution.":"No solution.");
+      safeText(byId("quadraticResult"),`This is linear: x = ${fmt(-c/b)}`);return;
+    }
+    const d=b*b-4*a*c;
+    if(d>0){
+      const r1=(-b+Math.sqrt(d))/(2*a),r2=(-b-Math.sqrt(d))/(2*a);
+      safeText(byId("quadraticResult"),`Discriminant Δ = ${fmt(d)}\nTwo real roots:\nx₁ = ${fmt(r1)}\nx₂ = ${fmt(r2)}`);
+    }else if(d===0)safeText(byId("quadraticResult"),`Discriminant Δ = 0\nRepeated root: x = ${fmt(-b/(2*a))}`);
+    else {
+      const real=-b/(2*a),imag=Math.sqrt(-d)/(2*a);
+      safeText(byId("quadraticResult"),`Discriminant Δ = ${fmt(d)}\nComplex roots:\nx₁ = ${fmt(real)} + ${fmt(imag)}i\nx₂ = ${fmt(real)} − ${fmt(imag)}i`);
+    }
+  }catch(error){safeText(byId("quadraticResult"),error.message);}
+}
+function solveSystem() {
+  try {
+    const a1=numericInput("sysA1"),b1=numericInput("sysB1"),c1=numericInput("sysC1");
+    const a2=numericInput("sysA2"),b2=numericInput("sysB2"),c2=numericInput("sysC2");
+    const det=a1*b2-a2*b1;
+    if(Math.abs(det)<1e-12){
+      const consistent=Math.abs(a1*c2-a2*c1)<1e-12&&Math.abs(b1*c2-b2*c1)<1e-12;
+      safeText(byId("systemResult"),consistent?"Dependent equations: infinitely many solutions or equivalent equations.":"No unique solution: equations are parallel/inconsistent.");
+      return;
+    }
+    const x=(c1*b2-c2*b1)/det,y=(a1*c2-a2*c1)/det;
+    safeText(byId("systemResult"),`x = ${fmt(x)}\ny = ${fmt(y)}\nDeterminant = ${fmt(det)}`);
+  }catch(error){toast(error.message,"error");}
+}
+
+/* ================================================================
+   10. UNIT CONVERTER DATA AND CONVERSION FUNCTIONS
+   ================================================================ */
+const UNIT_DEFS = {
+  length:{Meter:1,Kilometer:1000,Centimeter:.01,Millimeter:.001,Mile:1609.344,Foot:.3048,Inch:.0254,Yard:.9144},
+  mass:{Kilogram:1,Gram:.001,Milligram:.000001,Tonne:1000,Pound:.45359237,Ounce:.028349523125},
+  data:{Byte:1,Bit:.125,Kilobyte:1000,Kibibyte:1024,Megabyte:1e6,Mebibyte:1048576,Gigabyte:1e9,Gibibyte:1073741824},
+  time:{Second:1,Millisecond:.001,Minute:60,Hour:3600,Day:86400,Week:604800},
+  area:{'Square meter':1,'Square kilometer':1e6,'Square centimeter':.0001,Hectare:10000,Acre:4046.8564224,'Square foot':.09290304},
+  speed:{'Meter/second':1,'Kilometer/hour':1/3.6,'Mile/hour':.44704,Knot:.514444},
+  volume:{Liter:1,'Milliliter':.001,'Cubic meter':1000,'US gallon':3.785411784,'US cup':.2365882365},
+  pressure:{Pascal:1,Kilopascal:1000,Bar:100000,Atmosphere:101325,PSI:6894.757293}
+};
+const TEMP_UNITS=["Celsius","Fahrenheit","Kelvin"];
+function fillUnitSelects() {
+  const category=byId("unitCategory").value;
+  const units=category==="temperature"?TEMP_UNITS:Object.keys(UNIT_DEFS[category]);
+  ["unitFrom","unitTo"].forEach(id=>{
+    const select=byId(id);select.replaceChildren();
+    units.forEach(unit=>{const option=document.createElement("option");option.value=unit;option.textContent=unit;select.append(option);});
+  });
+  if(units.length>1)byId("unitTo").selectedIndex=1;
+  convertUnits();
+}
+function tempToC(value,unit) {
+  if(unit==="Celsius")return value;
+  if(unit==="Fahrenheit")return (value-32)*5/9;
+  return value-273.15;
+}
+function cToTemp(value,unit) {
+  if(unit==="Celsius")return value;
+  if(unit==="Fahrenheit")return value*9/5+32;
+  return value+273.15;
+}
+function convertUnits() {
+  try {
+    const category=byId("unitCategory").value,from=byId("unitFrom").value,to=byId("unitTo").value;
+    const value=Number(byId("unitValue").value);
+    if(!Number.isFinite(value))throw new Error("Enter a valid value.");
+    let result;
+    if(category==="temperature")result=cToTemp(tempToC(value,from),to);
+    else result=value*UNIT_DEFS[category][from]/UNIT_DEFS[category][to];
+    safeText(byId("unitResult"),fmt(result,12));
+    safeText(byId("unitFormula"),`${fmt(value)} ${from} = ${fmt(result,12)} ${to}`);
+  }catch(error){safeText(byId("unitResult"),"—");safeText(byId("unitFormula"),error.message);}
+}
+function swapUnits() {
+  const from=byId("unitFrom"),to=byId("unitTo"),old=from.value;
+  from.value=to.value;to.value=old;convertUnits();
+}
+
+/* ================================================================
+   11. NUMBER BASE, PRIME, FACTORS, GCD, LCM, RANDOM GENERATOR
+   ================================================================ */
+function convertBase() {
+  try {
+    const raw=byId("baseValue").value.trim(),base=Number(byId("baseFrom").value);
+    if(!raw)throw new Error("Enter a number.");
+    const value=parseInt(raw,base);
+    if(!Number.isSafeInteger(value))throw new Error("Enter a valid safe integer for the selected base.");
+    if(value.toString(base)!==raw.toLowerCase().replace(/^0+(?=.)/,""))throw new Error("The number does not match the selected base.");
+    safeText(byId("base2"),value.toString(2));
+    safeText(byId("base8"),value.toString(8));
+    safeText(byId("base10"),String(value));
+    safeText(byId("base16"),value.toString(16).toUpperCase());
+  }catch(error){toast(error.message,"error");}
+}
+function gcd(a,b) {
+  a=Math.abs(a);b=Math.abs(b);
+  while(b!==0){const t=b;b=a%b;a=t;}
+  return a;
+}
+function lcm(a,b) { return a===0||b===0?0:Math.abs(a/gcd(a,b)*b); }
+function isPrime(n) {
+  if(!Number.isSafeInteger(n)||n<2)return false;
+  if(n===2)return true;if(n%2===0)return false;
+  for(let d=3;d<=Math.sqrt(n);d+=2)if(n%d===0)return false;
+  return true;
+}
+function primeFactors(n) {
+  if(!Number.isSafeInteger(n)||n===0)return ["Not available for zero/non-safe integers"];
+  const factors=[];let value=Math.abs(n);
+  for(let divisor=2;divisor<=Math.sqrt(value);divisor++){
+    while(value%divisor===0){factors.push(divisor);value/=divisor;}
+  }
+  if(value>1)factors.push(value);
+  return factors.length?factors:["1"];
+}
+function analyzeIntegers() {
+  try {
+    const a=numericInput("integerA"),b=numericInput("integerB");
+    if(!Number.isSafeInteger(a)||!Number.isSafeInteger(b))throw new Error("Use safe integers only.");
+    safeText(byId("integerResult"),`A = ${a}: ${isPrime(a)?"prime":"not prime"}\nB = ${b}: ${isPrime(b)?"prime":"not prime"}\nFactors of A: ${primeFactors(a).join(" × ")}\nFactors of B: ${primeFactors(b).join(" × ")}\nGCD = ${gcd(a,b)}\nLCM = ${lcm(a,b)}`);
+  }catch(error){toast(error.message,"error");}
+}
+function generateRandomIntegers() {
+  try {
+    const min=numericInput("randomMin"),max=numericInput("randomMax"),count=numericInput("randomCount");
+    if(!Number.isSafeInteger(min)||!Number.isSafeInteger(max)||!Number.isInteger(count)||count<1||count>100||max<min)throw new Error("Check the min, max and count (count 1–100).");
+    const values=Array.from({length:count},()=>Math.floor(Math.random()*(max-min+1))+min);
+    safeText(byId("randomResult"),values.join(", "));
+  }catch(error){toast(error.message,"error");}
+}
+
+/* ================================================================
+   12. QUICK TOOL WIDGETS
+   ================================================================ */
+function renderQuickTool(type) {
+  const panel=byId("quickToolPanel");panel.replaceChildren();
+  const title=document.createElement("strong");
+  const description=document.createElement("p");description.className="subtle";
+  const row=document.createElement("div");row.className="grid2";
+  const result=document.createElement("div");result.className="output";result.style.marginTop="10px";result.textContent="Enter values and calculate.";
+  function field(labelText,id,value="0") {
+    const wrapper=document.createElement("label");wrapper.className="field";
+    const label=document.createElement("span");label.className="subtle";label.textContent=labelText;
+    const input=document.createElement("input");input.className="control";input.type="number";input.step="any";input.id=id;input.value=value;
+    wrapper.append(label,input);return wrapper;
+  }
+  let inputs=[],compute;
+  if(type==="percent"){
+    title.textContent="Percentage helper";description.textContent="Find what percent one value is of another.";
+    inputs=[field("Part","quickA","25"),field("Whole","quickB","200")];
+    compute=()=>{const a=Number(byId("quickA").value),b=Number(byId("quickB").value);if(!b)throw new Error("Whole cannot be zero.");return `${fmt(a)} is ${fmt(a/b*100)}% of ${fmt(b)}.`;};
+  }else if(type==="bmi"){
+    title.textContent="BMI helper";description.textContent="Body mass index estimate from kilograms and meters.";
+    inputs=[field("Weight (kg)","quickA","65"),field("Height (m)","quickB","1.7")];
+    compute=()=>{const w=Number(byId("quickA").value),h=Number(byId("quickB").value);if(w<=0||h<=0)throw new Error("Weight and height must be positive.");return `BMI = ${fmt(w/(h*h))}. This is a general calculator, not medical advice.`;};
+  }else if(type==="discount"){
+    title.textContent="Discount helper";description.textContent="Calculate sale price after a percentage discount.";
+    inputs=[field("Original price","quickA","1000"),field("Discount (%)","quickB","15")];
+    compute=()=>{const price=Number(byId("quickA").value),pct=Number(byId("quickB").value);if(pct<0||pct>100)throw new Error("Discount must be from 0 to 100%.");return `You save ${fmt(price*pct/100)}. Final price = ${fmt(price*(1-pct/100))}.`;};
+  }else{
+    title.textContent="Quadratic formula";description.textContent="Enter coefficients for ax² + bx + c = 0.";
+    inputs=[field("Coefficient a","quickA","1"),field("Coefficient b","quickB","-5"),field("Constant c","quickC","6")];
+    compute=()=>{const a=Number(byId("quickA").value),b=Number(byId("quickB").value),c=Number(byId("quickC").value);if(a===0)throw new Error("Coefficient a cannot be zero.");const d=b*b-4*a*c;if(d<0)return `Complex roots: ${fmt(-b/(2*a))} ± ${fmt(Math.sqrt(-d)/(2*a))}i`;return `x₁ = ${fmt((-b+Math.sqrt(d))/(2*a))}, x₂ = ${fmt((-b-Math.sqrt(d))/(2*a))}`;};
+  }
+  const button=document.createElement("button");button.className="btn primary";button.textContent="Calculate";
+  button.addEventListener("click",()=>{try{result.textContent=compute();}catch(error){result.textContent=error.message;}});
+  panel.append(title,description,row);
+  inputs.forEach(input=>row.append(input));
+  panel.append(button,result);
+}
+
+/* ================================================================
+   13. EVENT WIRING
+   ================================================================ */
+function wireCalculatorEvents() {
+  $$("#keypad [data-insert]").forEach(button=>button.addEventListener("click",()=>insertExpression(button.dataset.insert)));
+  $$("#keypad [data-action]").forEach(button=>button.addEventListener("click",()=>handleCalculatorAction(button.dataset.action)));
+  $$("[data-insert]").filter(button=>!button.closest("#keypad")).forEach(button=>button.addEventListener("click",()=>insertExpression(button.dataset.insert)));
+  $$("[data-action]").filter(button=>!button.closest("#keypad")).forEach(button=>button.addEventListener("click",()=>handleCalculatorAction(button.dataset.action)));
+  $$(".nav-btn").forEach(button=>button.addEventListener("click",()=>switchModule(button.dataset.module)));
+  byId("soundToggle").addEventListener("click",()=>{
+    App.sound=!App.sound;
+    $("#soundToggle i").className=App.sound?"fa-solid fa-volume-high text-green":"fa-solid fa-volume-xmark";
+    playTone(620,0.08);toast(`Sound ${App.sound?"enabled":"disabled"}.`);
+  });
+  byId("themeToggle").addEventListener("click",toggleTheme);
+  byId("resetApp").addEventListener("click",resetCalculator);
+  byId("exportHistory").addEventListener("click",exportHistoryCSV);
+  byId("clearHistory").addEventListener("click",clearHistory);
+  byId("copyHistory").addEventListener("click",copyHistory);
+  byId("downloadHistory").addEventListener("click",exportHistoryCSV);
+  byId("plotGraph").addEventListener("click",()=>plotCurrentGraph(false));
+  byId("addGraph").addEventListener("click",()=>plotCurrentGraph(true));
+  byId("clearGraphs").addEventListener("click",()=>{App.overlays=[];renderGraphLegend();drawGraph();});
+  byId("zoomIn").addEventListener("click",()=>{App.graph.scale=clamp(App.graph.scale*1.2,5,180);byId("graphScale").value=App.graph.scale;drawGraph();});
+  byId("zoomOut").addEventListener("click",()=>{App.graph.scale=clamp(App.graph.scale/1.2,5,180);byId("graphScale").value=App.graph.scale;drawGraph();});
+  byId("resetGraph").addEventListener("click",resetGraph);
+  byId("graphScale").addEventListener("change",()=>{App.graph.scale=clamp(Number(byId("graphScale").value)||45,5,180);drawGraph();});
+  ["showGrid","showAxes"].forEach(id=>byId(id).addEventListener("change",drawGraph));
+  byId("graphExpression").addEventListener("keydown",event=>{if(event.key==="Enter")plotCurrentGraph(false);});
+  byId("graphColor").addEventListener("change",()=>{if(App.overlays.length){App.overlays[App.overlays.length-1].color=byId("graphColor").value;renderGraphLegend();drawGraph();}});
+  byId("matrixSize").addEventListener("change",buildMatrixInputs);
+  byId("matrixOperation").addEventListener("change",()=>{byId("matrixBWrap").classList.toggle("hidden",!["add","subtract","multiply"].includes(byId("matrixOperation").value));});
+  byId("solveMatrix").addEventListener("click",solveMatrix);
+  byId("randomMatrix").addEventListener("click",randomizeMatrices);
+  byId("identityMatrix").addEventListener("click",identityMatrix);
+  byId("analyzeStats").addEventListener("click",analyzeStats);
+  byId("sortAsc").addEventListener("click",()=>sortDataset(false));
+  byId("sortDesc").addEventListener("click",()=>sortDataset(true));
+  byId("clearStats").addEventListener("click",()=>{byId("statsInput").value="";});
+  byId("solveLinear").addEventListener("click",solveLinear);
+  byId("solveQuadratic").addEventListener("click",solveQuadratic);
+  byId("solveSystem").addEventListener("click",solveSystem);
+  byId("unitCategory").addEventListener("change",fillUnitSelects);
+  byId("unitValue").addEventListener("input",convertUnits);
+  byId("unitFrom").addEventListener("change",convertUnits);
+  byId("unitTo").addEventListener("change",convertUnits);
+  byId("convertUnits").addEventListener("click",convertUnits);
+  byId("swapUnits").addEventListener("click",swapUnits);
+  byId("convertBase").addEventListener("click",convertBase);
+  byId("analyzeIntegers").addEventListener("click",analyzeIntegers);
+  byId("generateRandom").addEventListener("click",generateRandomIntegers);
+  $$("[data-quick]").forEach(button=>button.addEventListener("click",()=>renderQuickTool(button.dataset.quick)));
+}
+function handleCalculatorAction(action) {
+  if(action==="clear")clearExpression();
+  else if(action==="delete")deleteExpression();
+  else if(action==="equals")calculate();
+  else if(action==="sign")changeSign();
+  else if(action==="factorial")factorialCurrent();
+  else if(action==="random")randomCurrent();
+  else useMemory(action);
+}
+function wireKeyboard() {
+  window.addEventListener("keydown",event=>{
+    const target=event.target;
+    const typing=target instanceof HTMLElement && (["INPUT","TEXTAREA","SELECT"].includes(target.tagName)||target.isContentEditable);
+    if(typing)return;
+    if(/^[0-9]$/.test(event.key)){insertExpression(event.key);return;}
+    if(["+","-","*","/","(",")",".","%","^",","].includes(event.key)){insertExpression(event.key);return;}
+    if(event.key==="Enter"){event.preventDefault();calculate();return;}
+    if(event.key==="Backspace"){event.preventDefault();deleteExpression();return;}
+    if(event.key==="Escape"){clearExpression();return;}
+    if(event.key.toLowerCase()==="p"){insertExpression("π");return;}
+  });
+}
+
+/* ================================================================
+   14. STARTUP AND SELF-CHECKS
+   ================================================================ */
+function runSelfChecks() {
+  const tests=[
+    ["arithmetic",()=>evaluateExpression("2+3*4")===14],
+    ["power",()=>evaluateExpression("2^3^2")===512],
+    ["parentheses",()=>evaluateExpression("(2+3)*4")===20],
+    ["factorial",()=>evaluateExpression("5!")===120],
+    ["pi constant",()=>Math.abs(evaluateExpression("pi")-Math.PI)<1e-10],
+    ["square root",()=>evaluateExpression("sqrt(81)")===9]
+  ];
+  const failed=tests.filter(([,test])=>{try{return !test();}catch(error){return true;}});
+  if(failed.length)console.warn("PRIDO math engine self-check failed:",failed.map(([name])=>name));
+}
+function initializeApp() {
+  wireCalculatorEvents();
+  wireKeyboard();
+  setupGraphCanvas();
+  buildMatrixInputs();
+  fillUnitSelects();
+  renderDisplay();
+  renderHistory();
+  analyzeStats();
+  solveLinear();
+  solveQuadratic();
+  solveSystem();
+  convertBase();
+  analyzeIntegers();
+  plotCurrentGraph(false);
+  runSelfChecks();
+  toast("PRIDO Math Lab Pro is ready.");
+}
+document.addEventListener("DOMContentLoaded",initializeApp);
+</script>
+</body>
+
+<!-- SOURCE WALKTHROUGH / LEARNING NOTES
+
+CALCULATOR
+Note 01: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 02: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 03: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 04: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 05: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 06: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 07: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 08: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 09: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 10: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 11: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 12: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 13: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 14: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 15: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 16: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 17: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 18: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 19: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 20: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 21: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 22: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 23: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 24: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 25: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 26: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 27: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 28: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 29: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 30: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 31: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 32: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 33: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 34: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 35: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+
+SAFE EXPRESSION PARSER
+Note 01: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 02: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 03: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 04: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 05: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 06: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 07: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 08: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 09: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 10: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 11: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 12: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 13: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 14: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 15: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 16: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 17: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 18: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 19: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 20: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 21: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 22: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 23: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 24: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 25: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 26: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 27: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 28: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 29: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 30: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 31: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 32: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 33: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 34: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 35: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+
+GRAPHING
+Note 01: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 02: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 03: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 04: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 05: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 06: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 07: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 08: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 09: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 10: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 11: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 12: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 13: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 14: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 15: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 16: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 17: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 18: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 19: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 20: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 21: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 22: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 23: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 24: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 25: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 26: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 27: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 28: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 29: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 30: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 31: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 32: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 33: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 34: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 35: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+
+MATRIX OPERATIONS
+Note 01: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 02: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 03: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 04: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 05: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 06: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 07: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 08: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 09: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 10: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 11: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 12: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 13: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 14: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 15: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 16: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 17: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 18: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 19: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 20: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 21: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 22: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 23: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 24: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 25: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 26: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 27: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 28: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 29: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 30: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 31: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 32: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 33: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 34: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 35: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+
+STATISTICS
+Note 01: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 02: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 03: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 04: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 05: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 06: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 07: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 08: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 09: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 10: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 11: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 12: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 13: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 14: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 15: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 16: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 17: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 18: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 19: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 20: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 21: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 22: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 23: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 24: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 25: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 26: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 27: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 28: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 29: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 30: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 31: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 32: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 33: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 34: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 35: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+
+EQUATION SOLVER
+Note 01: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 02: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 03: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 04: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 05: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 06: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 07: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 08: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 09: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 10: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 11: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 12: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 13: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 14: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 15: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 16: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 17: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 18: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 19: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 20: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 21: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 22: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 23: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 24: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 25: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 26: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 27: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 28: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 29: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 30: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 31: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 32: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 33: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 34: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 35: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+
+UNIT CONVERSION
+Note 01: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 02: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 03: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 04: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 05: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 06: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 07: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 08: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 09: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 10: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 11: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 12: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 13: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 14: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 15: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 16: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 17: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 18: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 19: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 20: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 21: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 22: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 23: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 24: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 25: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 26: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 27: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 28: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 29: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 30: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 31: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 32: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 33: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 34: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 35: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+
+NUMBER THEORY
+Note 01: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 02: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 03: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 04: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 05: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 06: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 07: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 08: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 09: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 10: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 11: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 12: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 13: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 14: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 15: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 16: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 17: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 18: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 19: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 20: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 21: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 22: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 23: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 24: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 25: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 26: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 27: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 28: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 29: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 30: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 31: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 32: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 33: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 34: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 35: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+
+ACCESSIBILITY
+Note 01: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 02: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 03: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 04: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 05: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 06: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 07: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 08: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 09: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 10: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 11: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 12: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 13: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 14: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 15: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 16: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 17: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 18: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 19: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 20: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 21: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 22: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 23: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 24: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 25: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 26: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 27: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 28: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 29: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 30: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 31: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 32: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 33: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 34: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 35: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+
+RESPONSIVE DESIGN
+Note 01: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 02: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 03: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 04: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 05: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 06: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 07: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 08: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 09: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 10: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 11: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 12: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 13: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 14: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 15: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 16: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 17: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 18: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 19: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 20: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 21: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 22: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 23: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 24: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 25: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 26: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 27: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 28: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 29: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 30: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 31: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 32: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 33: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 34: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 35: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+
+SECURITY
+Note 01: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 02: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 03: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 04: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 05: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 06: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 07: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 08: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 09: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 10: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 11: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 12: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 13: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 14: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 15: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 16: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 17: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 18: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 19: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 20: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 21: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 22: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 23: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 24: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 25: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 26: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 27: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 28: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 29: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 30: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 31: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 32: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 33: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 34: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 35: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+
+TESTING
+Note 01: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 02: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 03: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 04: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 05: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 06: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 07: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 08: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 09: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 10: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 11: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 12: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 13: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 14: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 15: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 16: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 17: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 18: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 19: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 20: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 21: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 22: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 23: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 24: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 25: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 26: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 27: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 28: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 29: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 30: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 31: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 32: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 33: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 34: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+Note 35: This section is documented for learners maintaining the PRIDO Math Lab Pro single-file application.
+END SOURCE WALKTHROUGH -->
+</html>
